@@ -2,18 +2,52 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Hello World!</title>
+    <title>1023 alternatyw</title>
+    <link rel="stylesheet" href="style.css">
   </head>
   <body>
-    <h1>Hello World!</h1>
-    <!-- All of the Node.js APIs are available in this renderer process. -->
-    We are using Node.js <script>document.write(process.versions.node)</script>,
-    Chromium <script>document.write(process.versions.chrome)</script>,
-    and Electron <script>document.write(process.versions.electron)</script>.
+    <section id="start">
+       <div class="column">
+          <script>
+             require('./session.js').exists().then(session => {
+               let btn = document.getElementById("load-session-btn");
+               if (session) {
+                 btn.innerText = "Wczytaj poprzednią sesję (" + session + ")";
+                 btn.className = "";
+               } else {
+                 btn.remove();
+               }
+             });
+          </script>
+          <button id="load-session-btn" class="hidden"></button>
+          <button id="new-session-btn">Nowa sesja</button>
+    </section>
+
+    <section id="main" class="hidden">
+        <div class="row">
+        <div class="column">
+        <div class="row">
+            <img id="lamp-0">
+            <img id="lamp-1">
+            <img id="lamp-2">
+            <img id="lamp-3">
+            <img id="lamp-4">
+        </div>
+        </div>
+        <div class="column">
+        <div class="row">
+            <img id="lamp-5">
+            <img id="lamp-6">
+            <img id="lamp-7">
+            <img id="lamp-8">
+            <img id="lamp-9">
+        </div>
+        </div>
+        </div>
+    </section>
 
     <script>
-      // You can also require other files to run in this process
-      require('./renderer.js')
+      //TODO button logic
     </script>
   </body>
 </html>
