@@ -8,10 +8,10 @@ exports.enums = {
 
 let makeDefault = () => {
   return ({
-    delay: 1000, //milliseconds
+    delay: 3000, //milliseconds
     delayType: exports.enums.delayType.constant,
     experimentType: exports.enums.experimentType.feedback,
-    delayBeforeNext: 750, //milliseconds
+    delayBeforeNext: 1500, //milliseconds
   });
 }
 

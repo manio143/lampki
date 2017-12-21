@@ -13,11 +13,11 @@ const pref = require("./preferences.js");
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
 
-let preferences
+global.preferences = {}
 
 async function loadPreferences() {
-  preferences = await pref.load();
-  pref.log(preferences);
+  global.preferences = await pref.load();
+  pref.log(global.preferences);
 }
 
 function createWindow () {
@@ -30,6 +30,8 @@ function createWindow () {
     protocol: 'file:',
     slashes: true
   }))
+
+  mainWindow.maximize();
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
@@ -58,6 +60,10 @@ app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') {
     app.quit()
   }
+})
+
+app.on('will-quit', function () {
+  electron.globalShortcut.unregisterAll();
 })
 
 app.on('activate', function () {

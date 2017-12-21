@@ -7,7 +7,14 @@
     height: 97vh;
 }
 
-.column * {
+.column-t {
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  flex-direction: column;
+}
+
+.column > * {
     margin: 10px;
 }
 
@@ -22,4 +29,15 @@
 
 .hidden {
     display: none;
+}
+
+img.lamp {
+  height: 122px;
+  margin: 0 10px;
+}
+span.lamp {
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 20px;
 }

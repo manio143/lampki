@@ -27,27 +27,146 @@
         <div class="row">
         <div class="column">
         <div class="row">
-            <img id="lamp-0">
-            <img id="lamp-1">
-            <img id="lamp-2">
-            <img id="lamp-3">
-            <img id="lamp-4">
+            <script>
+              for(let i = 0; i < 5; i++)
+                document.write("<div class='column-t'><img class='lamp' id='lamp-" + i + "'><span class='lamp'>"+(i+1)+"</span></div>");
+            </script>
         </div>
         </div>
         <div class="column">
         <div class="row">
-            <img id="lamp-5">
-            <img id="lamp-6">
-            <img id="lamp-7">
-            <img id="lamp-8">
-            <img id="lamp-9">
+            <script>
+              for(let i = 5; i < 10; i++)
+                document.write("<div class='column-t'><img class='lamp' id='lamp-" + i + "'><span class='lamp'>"+(i+1)+"</span></div>");
+            </script>
         </div>
         </div>
         </div>
     </section>
 
     <script>
-      //TODO button logic
+      const dialogs = require("./dialog.js");
+      const pref = require('./preferences.js');
+      const {remote, shell} = require('electron');
+      const sess = require('./session.js');
+
+      window.keypresses = {
+        key_press0: () => {},
+        key_press1: () => {},
+        key_press2: () => {},
+        key_press3: () => {},
+        key_press4: () => {},
+        key_press5: () => {},
+        key_press6: () => {},
+        key_press7: () => {},
+        key_press8: () => {},
+        key_press9: () => {}
+      }
+
+      window.setup = 0;
+
+      window.onload = () => {
+        let loadBtn = document.getElementById("load-session-btn");
+        let newBtn = document.getElementById("new-session-btn");
+        let preferences = remote.getGlobal('preferences');
+      
+        let beep = () => {
+          let audio = new Audio('./sounds/beep.mp3');
+          audio.play();
+        };
+        let randomSetup = () => {
+          let items = window.session.unseen;
+          var item = items[Math.floor(Math.random()*items.length)];
+          let index = items.indexOf(item);
+          window.session.unseen.splice(index, 1);
+          return item;
+        };
+        let isOn = (n, setup) => (setup & (1 << n-1)) !== 0;
+        let renderSetup = (setup) => {
+          for(let i = 0; i < 10; i++) {
+            let img = document.getElementById('lamp-'+i);
+            if(isOn(i, setup))
+              img.src = "img/lamp_on.jpg";
+            else
+              img.src = "img/lamp_off.jpg";
+          }
+        };
+        let startSetupEvents = (setup) => {
+          window.currentPresses = Array.from(Array(10), (i, x) => false);
+          window.start = performance.now();
+          for(let i = 0; i < 10; i++) {
+            keypresses['key_press'+i] = () => {
+              console.log("Pressed " + (i+1));
+              if(preferences.experimentType === pref.enums.experimentType.feedback && !isOn(i, setup))
+                beep();
+              window.currentPresses[i] = true;
+              let allPressed = true;
+              for(let j = 0; j < 10; j++) {
+                if(isOn(j, setup) && !window.currentPresses[j])
+                  allPressed = false;
+              }
+              if(allPressed && preferences.delayType === pref.enums.delayType.afterLast)
+                setTimeout(nextSetup, preferences.delay);
+              if(!window.session.presses[setup])
+                window.session.presses[setup] = {};
+              window.session.presses[setup][i] = performance.now() - window.start;
+            };
+          }
+          if(preferences.delayType === pref.enums.delayType.constant)
+            setTimeout(nextSetup, preferences.delay);
+        };
+        let nextSetup = () => {
+          renderSetup(0);
+          for(let i = 0; i < 10; i++)
+            keypresses['key_press'+i] = () => {};
+
+          setTimeout(function () {
+              setup = randomSetup();
+              renderSetup(setup);
+              startSetupEvents(setup);
+          }, preferences.delayBeforeNext);
+        }; 
+        let openSession = () => {
+          document.getElementById("start").className = "hidden";
+          document.getElementById("main").className = "";
+
+          window.sessionStart = new Date();
+
+          nextSetup();
+        };
+        loadBtn.onclick = async () => {
+          window.session = await require('./session.js').load();
+          openSession();
+        };
+        newBtn.onclick = async () => {
+          let nick = await dialogs.prompt("Podaj swój identyfikator");
+          window.session = await sess.makeSession(nick);
+          if(await sess.exists()) sess.archive();
+          openSession();
+        };
+      };
+      document.addEventListener("keydown", (e) => {
+        console.log("Keydown " + e.key);
+        switch(e.key) {
+          case 'a': keypresses.key_press0(); break;
+          case 's': keypresses.key_press1(); break;
+          case 'd': keypresses.key_press2(); break;
+          case 'f': keypresses.key_press3(); break;
+          case 'c': keypresses.key_press4(); break;
+          case 'n': keypresses.key_press5(); break;
+          case 'h': keypresses.key_press6(); break;
+          case 'j': keypresses.key_press7(); break;
+          case 'k': keypresses.key_press8(); break;
+          case 'l': keypresses.key_press9(); break;
+       }
+     }, false);
+
+    window.onbeforeunload = (e) => {
+      window.session.finishedAt = new Date();
+      window.session.duration += window.session.finishedAt - window.sessionStart; //if auto-save then update sessionStart
+      window.session.unseen.push(window.setup);
+      sess.save(window.session);
+    }
     </script>
   </body>
 </html>

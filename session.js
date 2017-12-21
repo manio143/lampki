@@ -8,7 +8,8 @@ exports.makeSession = (nick) => {
   return ({
     nick: nick,
     startedAt: new Date(),
-    duration: null,
+    finishedAt: null,
+    duration: 0,
     unseen: generateAll(),
     presses: {}
   });
@@ -22,6 +23,14 @@ exports.save = (session) => {
 exports.load = () => {
   return fs.readFile('./savedSession.json', "utf8").then(data => JSON.parse(data))
 }
+
+exports.archive = async () => {
+  let old = await this.load();
+  let data = JSON.stringify(old);
+  if(!(await fs.exists('./previousSessions')))
+    await fs.mkdir('./previousSessions');
+  await fs.writeFile('./previousSessions/'+old.startedAt+'_'+old.nick+'.json', data, "utf8");
+};
 
 exports.exists = () => {
   return this.load().then(d => d.nick).catch(err => false);
