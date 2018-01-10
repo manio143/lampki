@@ -20,8 +20,9 @@ exports.save = (session) => {
   return fs.writeFile('./savedSession.json', data, "utf8")
 }
 
-exports.load = () => {
-  return fs.readFile('./savedSession.json', "utf8").then(data => JSON.parse(data))
+exports.load = (file) => {
+  file = file || './savedSession.json';
+  return fs.readFile(file, "utf8").then(data => JSON.parse(data))
 }
 
 exports.archive = async () => {
@@ -38,4 +39,15 @@ exports.exists = () => {
 
 exports.remove = () => {
   return fs.unlink('./savedSession.json');
+}
+
+exports.loadAll = async () => {
+  let files = (await fs.readdir('./previousSessions')).map(v => './previousSessions/' + v);
+  files.push('./savedSession.json');
+  let sessions = [];
+  for (var f of files) {
+    sessions.push(await this.load(f));
+  }
+  sessions.sort((a, b) => a.startedAt - b.startedAt);
+  return sessions;
 }

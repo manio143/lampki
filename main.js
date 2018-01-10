@@ -22,17 +22,27 @@ async function loadPreferences() {
 
 function createWindow () {
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 800, height: 600})
 
-  // and load the index.html of the app.
-  mainWindow.loadURL(url.format({
-    pathname: path.join(__dirname, 'index.html'),
-    protocol: 'file:',
-    slashes: true
-  }))
+  if (process.argv.indexOf("config") >= 0) {
+    mainWindow = new BrowserWindow({ width: 400, height: 400 });
+    mainWindow.loadURL(url.format({
+      pathname: path.join(__dirname, 'config.html'),
+      protocol: 'file:',
+      slashes: true
+    }))
+  } else {
 
-  mainWindow.maximize();
+    mainWindow = new BrowserWindow({ width: 800, height: 600 })
 
+    // and load the index.html of the app.
+    mainWindow.loadURL(url.format({
+      pathname: path.join(__dirname, 'index.html'),
+      protocol: 'file:',
+      slashes: true
+    }))
+
+    mainWindow.maximize();
+  }
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
 

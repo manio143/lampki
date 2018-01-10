@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>1023 alternatyw - Konfiguracja</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <section id="main">
+      <div class="column">
+        <div>
+          <span>Experiment type: </span>
+          <select name="experiment_type">
+            <option value="0">Feedback</option>
+            <option value="1">No feedback</option>
+          </select>
+        </div>
+        <div>
+            <span>Delay type: </span>
+            <select name="delay_type">
+              <option value="0">Constant</option>
+              <option value="1">After last</option>
+            </select>
+        </div>
+        <div>
+          <span>Delay (ms): </span>
+          <input type="number" name="delay">
+        </div>
+        <div>
+          <span>Delay before next set: </span>
+          <input type="number" name="delayBeforeNext">
+        </div>
+        <div>
+          <strong>Export</strong><br>
+          <span>Choose session: </span>
+          <select id='sessions'>
+
+          </select>
+          <button id='session_export'>Export</button>
+          <script>
+            const sess = require('./session.js');
+            sess.loadAll().then((sessions) =>{
+              let sv = document.getElementById('sessions');
+              for(var s of sessions){
+                sv.appendChild(new Option(s.startedAt + "  "+ s.nick, JSON.stringify(s)))
+              }
+
+              let btn = document.getElementById('session_export');
+              //TODO: present openfile dialog, export to CSV
+            });
+          </script>
+        </div>
+      </div>
+    </section>
+
+     <script>
+      const dialogs = require("./dialog.js");
+      const pref = require('./preferences.js');
+      const {remote, shell} = require('electron');
+
+      window.onload = async () => {
+        let iet = document.getElementsByName("experiment_type")[0];
+        let idt = document.getElementsByName("delay_type")[0];
+        let id = document.getElementsByName("delay")[0];
+        let idb = document.getElementsByName("delayBeforeNext")[0];
+
+        window.preferences = await pref.load();
+        iet.value = preferences.experimentType;
+        idt.value = preferences.delayType;
+        id.value = preferences.delay;
+        idb.value = preferences.delayBeforeNext;
+      };
+
+      window.onbeforeunload = (e) => {
+        let iet = document.getElementsByName("experiment_type")[0];
+        let idt = document.getElementsByName("delay_type")[0];
+        let id = document.getElementsByName("delay")[0];
+        let idb = document.getElementsByName("delayBeforeNext")[0];
+        
+        preferences.experimentType = iet.value;
+        preferences.delayType = idt.value;
+        preferences.delay = id.value;
+        preferences.delayBeforeNext = idb.value;
+        pref.save(preferences);
+      }
+    </script>
+  </body>
+</html>

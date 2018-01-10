@@ -7,7 +7,7 @@
   </head>
   <body>
     <section id="start">
-       <div class="column">
+      <div class="column">
           <script>
              require('./session.js').exists().then(session => {
                let btn = document.getElementById("load-session-btn");
@@ -21,6 +21,7 @@
           </script>
           <button id="load-session-btn" class="hidden"></button>
           <button id="new-session-btn">Nowa sesja</button>
+      </div>
     </section>
 
     <section id="main" class="hidden">
@@ -69,6 +70,7 @@
         let loadBtn = document.getElementById("load-session-btn");
         let newBtn = document.getElementById("new-session-btn");
         let preferences = remote.getGlobal('preferences');
+        console.log(preferences);
       
         let beep = () => {
           let audio = new Audio('./sounds/beep.mp3');
@@ -116,7 +118,8 @@
             setTimeout(nextSetup, preferences.delay);
         };
         let nextSetup = () => {
-          renderSetup(0);
+          setup = 0;
+          renderSetup(setup);
           for(let i = 0; i < 10; i++)
             keypresses['key_press'+i] = () => {};
 
@@ -146,7 +149,7 @@
         };
       };
       document.addEventListener("keydown", (e) => {
-        console.log("Keydown " + e.key);
+       // console.log("Keydown " + e.key);
         switch(e.key) {
           case 'a': keypresses.key_press0(); break;
           case 's': keypresses.key_press1(); break;
@@ -164,7 +167,7 @@
     window.onbeforeunload = (e) => {
       window.session.finishedAt = new Date();
       window.session.duration += window.session.finishedAt - window.sessionStart; //if auto-save then update sessionStart
-      window.session.unseen.push(window.setup);
+      if(window.setup != 0) window.session.unseen.push(window.setup);
       sess.save(window.session);
     }
     </script>
