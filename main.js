@@ -24,7 +24,8 @@ function createWindow () {
   // Create the browser window.
 
   if (process.argv.indexOf("config") >= 0) {
-    mainWindow = new BrowserWindow({ width: 400, height: 400 });
+    mainWindow = new BrowserWindow({ width: 400, height: 400 })
+    
     mainWindow.loadURL(url.format({
       pathname: path.join(__dirname, 'config.html'),
       protocol: 'file:',

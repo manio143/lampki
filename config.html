@@ -46,7 +46,19 @@
               }
 
               let btn = document.getElementById('session_export');
-              //TODO: present openfile dialog, export to CSV
+              btn.onclick = () => {
+                let path = require('electron').remote.dialog.showSaveDialog({title: "Exportuj"});
+                let object = JSON.parse(sv.value);
+                let csvData = [['configuration', 'button', 'time_to_press']]
+                for(var x in object.presses) {
+                  for(var p in object.presses[x]) {
+                    csvData.push([("0000000000" + (x >>> 0).toString(2)).slice(-10), p, object.presses[x][p]])
+                  }
+                }
+                require('csv-stringify')(csvData, function (err, out) {
+                  require('mz/fs').writeFile(path, out, "utf8");
+                })
+              };
             });
           </script>
         </div>
@@ -77,10 +89,10 @@
         let id = document.getElementsByName("delay")[0];
         let idb = document.getElementsByName("delayBeforeNext")[0];
         
-        preferences.experimentType = iet.value;
-        preferences.delayType = idt.value;
-        preferences.delay = id.value;
-        preferences.delayBeforeNext = idb.value;
+        preferences.experimentType = Number(iet.value);
+        preferences.delayType = Number(idt.value);
+        preferences.delay = Number(id.value);
+        preferences.delayBeforeNext = Number(idb.value);
         pref.save(preferences);
       }
     </script>
