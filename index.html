@@ -29,8 +29,23 @@
         <div class="column">
         <div class="row">
             <script>
+              function key(x) {
+                switch(x) {
+                  case 1: return "A";
+                  case 2: return "S";
+                  case 3: return "D";
+                  case 4: return "F";
+                  case 5: return "C";
+                  case 6: return "N";
+                  case 7: return "H";
+                  case 8: return "J";
+                  case 9: return "K";
+                  case 10: return "L";
+                }
+              }
+
               for(let i = 0; i < 5; i++)
-                document.write("<div class='column-t'><img class='lamp' id='lamp-" + i + "'><span class='lamp'>"+(i+1)+"</span></div>");
+                document.write("<div class='column-t'><img class='lamp' id='lamp-" + i + "'><span class='lamp'>"+key(i+1)+"</span></div>");
             </script>
         </div>
         </div>
@@ -38,7 +53,7 @@
         <div class="row">
             <script>
               for(let i = 5; i < 10; i++)
-                document.write("<div class='column-t'><img class='lamp' id='lamp-" + i + "'><span class='lamp'>"+(i+1)+"</span></div>");
+                document.write("<div class='column-t'><img class='lamp' id='lamp-" + i + "'><span class='lamp'>"+key(i+1)+"</span></div>");
             </script>
         </div>
         </div>
@@ -139,11 +154,15 @@
         };
         loadBtn.onclick = async () => {
           window.session = await require('./session.js').load();
-          openSession();
+          let pwd = await dialogs.prompt("Podaj hasło");
+          if(require('crypto').createHash('sha256').update(pwd).digest('hex') === session.pwd)          
+            openSession();
         };
         newBtn.onclick = async () => {
           let nick = await dialogs.prompt("Podaj swój identyfikator");
-          window.session = await sess.makeSession(nick);
+          if(nick == "") throw "Error";
+          let pwd = await dialogs.prompt("Podaj hasło");
+          window.session = await sess.makeSession(nick, pwd);
           if(await sess.exists()) sess.archive();
           openSession();
         };

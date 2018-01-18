@@ -1,12 +1,13 @@
 const fs = require("mz/fs")
 require("simple-enum")
 
-exports.makeSession = (nick) => {
+exports.makeSession = (nick, pwd) => {
   let generateAll = () => {
     return Array.from(Array(1023), (x, i) => i+1);
   };
   return ({
     nick: nick,
+    pwd: require('crypto').createHash('sha256').update(pwd).digest('hex'),
     startedAt: new Date(),
     finishedAt: null,
     duration: 0,
